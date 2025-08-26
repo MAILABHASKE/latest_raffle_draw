@@ -6,7 +6,8 @@ import SurveyPage from "./pages/SurveyPage";
 import Raffle from "./pages/Raffle";
 import Map from "./pages/Map";
 import Admin from "./pages/Admin";
-import Login from "./pages/Login"; // Add this import
+import Login from "./pages/Login";
+import ReferralDashboard from "./components/ReferralDashboard"; // Add this import
 import Navbar from "./components/Navbar";
 import "./App.css";
 
@@ -21,7 +22,14 @@ function App() {
           <Route path="/raffle" element={<Raffle />} />
           <Route path="/map" element={<Map />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/login" element={<Login />} /> {/* Add this route */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/referrals" element={<ReferralDashboard />} />{" "}
+          {/* Add referral dashboard route */}
+          <Route
+            path="/referral-dashboard"
+            element={<ReferralDashboard />}
+          />{" "}
+          {/* Alternative route */}
         </Routes>
       </div>
     </Router>
