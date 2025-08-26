@@ -1339,7 +1339,7 @@ const SurveyForm = ({
               <button
                 onClick={() => {
                   // You can implement a modal or navigation to referral dashboard
-                  window.location.href = "/referral-dashboard";
+                  window.location.href = "/referrals";
                 }}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >

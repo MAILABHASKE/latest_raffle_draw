@@ -7,7 +7,7 @@ import Raffle from "./pages/Raffle";
 import Map from "./pages/Map";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
-import ReferralDashboard from "./components/ReferralDashboard"; // Add this import
+import ReferralDashboardPage from "./pages/ReferralDashboardPage"; // Add this import
 import Navbar from "./components/Navbar";
 import "./App.css";
 
@@ -23,13 +23,11 @@ function App() {
           <Route path="/map" element={<Map />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/referrals" element={<ReferralDashboard />} />{" "}
-          {/* Add referral dashboard route */}
+          <Route path="/referrals" element={<ReferralDashboardPage />} />
           <Route
             path="/referral-dashboard"
-            element={<ReferralDashboard />}
-          />{" "}
-          {/* Alternative route */}
+            element={<ReferralDashboardPage />}
+          />
         </Routes>
       </div>
     </Router>

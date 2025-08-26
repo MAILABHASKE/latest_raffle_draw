@@ -200,7 +200,7 @@ const Home = () => {
                 Start Survey Now
               </Link>
               <Link
-                to="/referral-dashboard"
+                to="/referrals"
                 className="px-8 py-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-full font-bold text-lg shadow-lg hover:shadow-purple-500/30 transition-all duration-300 hover:scale-105"
               >
                 Get Referral Link

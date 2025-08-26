@@ -72,7 +72,12 @@ const Navbar = () => {
             >
               Raffle
             </Link>
-
+            <Link
+              to="/referrals"
+              className="text-white hover:text-cyan-300 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              My Referrals
+            </Link>
             <Link
               to="/map"
               className={`px-3 py-2 rounded-md text-sm font-medium ${
