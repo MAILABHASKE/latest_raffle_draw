@@ -80,6 +80,52 @@ const Home = () => {
         </div>
       </div>
 
+      {/* Referral Banner Section */}
+      <div className="relative z-10 bg-gradient-to-r from-purple-600 to-indigo-700 py-12 px-4">
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="flex flex-col items-center justify-center">
+            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4">
+              <svg
+                className="w-8 h-8 text-white"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+              </svg>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              Refer & Earn Extra Points!
+            </h2>
+            <p className="text-xl text-blue-100 mb-6 max-w-3xl">
+              Share your unique referral link and earn{" "}
+              <span className="font-bold text-yellow-300">25 bonus points</span>{" "}
+              for each person who completes the survey through your link!
+            </p>
+            <div className="flex items-center justify-center space-x-4 mb-6">
+              <div className="flex items-center text-white">
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-2">
+                  <span className="text-sm font-bold">+25</span>
+                </div>
+                <span>Per Referral</span>
+              </div>
+              <div className="flex items-center text-white">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-2">
+                  <span className="text-sm font-bold">∞</span>
+                </div>
+                <span>Unlimited Referrals</span>
+              </div>
+            </div>
+            <Link
+              to="/referral-dashboard"
+              className="px-8 py-3 bg-white text-purple-700 rounded-full font-bold text-lg shadow-lg hover:bg-gray-100 transition-all duration-300 hover:scale-105"
+            >
+              Get Your Referral Link
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Info section */}
       <div className="relative z-10 bg-white py-16 sm:py-20 px-4">
         <div className="max-w-6xl mx-auto">
@@ -87,56 +133,78 @@ const Home = () => {
             How It Works
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-6 sm:gap-10">
-            <div className="text-center p-5 sm:p-6 rounded-xl bg-gradient-to-b from-white to-blue-50 shadow-lg">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-900 text-xl sm:text-2xl font-bold mx-auto mb-4">
+          <div className="grid md:grid-cols-4 gap-6 sm:gap-8">
+            <div className="text-center p-6 sm:p-8 rounded-xl bg-gradient-to-b from-white to-blue-50 shadow-lg border border-blue-100">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-900 text-2xl sm:text-3xl font-bold mx-auto mb-5">
                 1
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-3">
+              <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-gray-800">
                 Complete the Survey
               </h3>
-              <p className="text-gray-900 text-sm sm:text-base">
+              <p className="text-gray-700 text-base sm:text-lg">
                 Provide information about your medical imaging facility and
                 equipment.
               </p>
             </div>
 
-            <div className="text-center p-5 sm:p-6 rounded-xl bg-gradient-to-b from-white to-blue-50 shadow-lg">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-900 text-xl sm:text-2xl font-bold mx-auto mb-4">
+            <div className="text-center p-6 sm:p-8 rounded-xl bg-gradient-to-b from-white to-blue-50 shadow-lg border border-blue-100">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-900 text-2xl sm:text-3xl font-bold mx-auto mb-5">
                 2
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-3">
+              <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-gray-800">
                 Earn Raffle Tickets
               </h3>
-              <p className="text-gray-900 text-sm sm:text-base">
+              <p className="text-gray-700 text-base sm:text-lg">
                 Gain more entries based on the completeness of your information.
               </p>
             </div>
 
-            <div className="text-center p-5 sm:p-6 rounded-xl bg-gradient-to-b from-white to-blue-50 shadow-lg">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-900 text-xl sm:text-2xl font-bold mx-auto mb-4">
+            <div className="text-center p-6 sm:p-8 rounded-xl bg-gradient-to-b from-white to-blue-50 shadow-lg border border-blue-100">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-900 text-2xl sm:text-3xl font-bold mx-auto mb-5">
                 3
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-3">
+              <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-gray-800">
+                Refer Friends
+              </h3>
+              <p className="text-gray-700 text-base sm:text-lg">
+                Share your referral link and earn 25 bonus points for each
+                completed survey.
+              </p>
+            </div>
+
+            <div className="text-center p-6 sm:p-8 rounded-xl bg-gradient-to-b from-white to-blue-50 shadow-lg border border-blue-100">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-900 text-2xl sm:text-3xl font-bold mx-auto mb-5">
+                4
+              </div>
+              <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-gray-800">
                 Win Prizes
               </h3>
-              <p className="text-gray-900 text-sm sm:text-base">
+              <p className="text-gray-700 text-base sm:text-lg">
                 Selected participants will receive{" "}
-                <span className="font-bold text-orange-900">$500</span> for
+                <span className="font-bold text-orange-600">$500</span> for
                 their contribution.
               </p>
             </div>
-            <div className="text-center p-5 sm:p-6 rounded-xl bg-gradient-to-b from-white to-green-50 shadow-lg">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center text-green-900 text-xl sm:text-2xl font-bold mx-auto mb-4">
-                ✨
-              </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-3">
-                Refer & Earn More Points
-              </h3>
-              <p className="text-gray-900 text-sm sm:text-base">
-                Share your unique referral link and earn 25 extra points for
-                each person who completes the survey through your link!
-              </p>
+          </div>
+
+          {/* CTA Section */}
+          <div className="text-center mt-16">
+            <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">
+              Ready to Participate?
+            </h3>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Link
+                to="/survey"
+                className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full font-bold text-lg shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 hover:scale-105"
+              >
+                Start Survey Now
+              </Link>
+              <Link
+                to="/referral-dashboard"
+                className="px-8 py-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-full font-bold text-lg shadow-lg hover:shadow-purple-500/30 transition-all duration-300 hover:scale-105"
+              >
+                Get Referral Link
+              </Link>
             </div>
           </div>
         </div>
