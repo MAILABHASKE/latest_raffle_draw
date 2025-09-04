@@ -18,24 +18,19 @@ const SurveyForm = ({
   const [uploading, setUploading] = useState(false);
   const anonymousId = useAnonymousSession();
 
-  const [machineCounts, setMachineCounts] = useState({
-    mri: 0,
-    ct: 0,
-    ultrasound: 0,
-    xray: 0,
-  });
+  const [machineCount, setMachineCount] = useState(0);
 
-  const updateMachineCount = (type, count) => {
-    setMachineCounts((prev) => ({ ...prev, [type]: count }));
+  const updateMachineCount = (count) => {
+    setMachineCount(count);
     handleChange({
       target: {
-        name: `${type}Count`,
+        name: "mriCount",
         value: count,
       },
     });
   };
 
-  const handleImageUpload = async (event, machineType, index) => {
+  const handleImageUpload = async (event, index) => {
     try {
       setUploading(true);
 
@@ -67,7 +62,7 @@ const SurveyForm = ({
       const fileName = `${Date.now()}-${Math.random()
         .toString(36)
         .substr(2, 9)}.${fileExt}`;
-      const filePath = `anonymous/${anonymousId}/${machineType}/${fileName}`;
+      const filePath = `anonymous/${anonymousId}/mri/${fileName}`;
 
       // Create upload promise with timeout
       const uploadPromise = supabase.storage
@@ -110,11 +105,11 @@ const SurveyForm = ({
       } = supabase.storage.from("facility_photos").getPublicUrl(filePath);
 
       // Update form data
-      const machineKey = `${machineType}Machines`;
+      const machineKey = "mriMachines";
       const updatedMachines = [...(formData[machineKey] || [])];
 
       if (!updatedMachines[index]) {
-        updatedMachines[index] = { machine_type: machineType };
+        updatedMachines[index] = { machine_type: "mri" };
       }
       updatedMachines[index].photo_url = publicUrl;
 
@@ -152,11 +147,8 @@ const SurveyForm = ({
   const calculatePoints = () => {
     let points = 50; // Base points for completing the survey
 
-    // Points for each machine reported
+    // Points for each MRI machine reported
     points += (formData.mriCount || 0) * 10;
-    points += (formData.ctCount || 0) * 8;
-    points += (formData.ultrasoundCount || 0) * 5;
-    points += (formData.xrayCount || 0) * 3;
 
     // Points for detailed information
     if (formData.respondent_email) points += 5;
@@ -173,28 +165,27 @@ const SurveyForm = ({
     return points;
   };
 
-  const renderMachineSection = (machineType, machineLabel, fields) => {
-    const count = machineCounts[machineType] || 0;
-    const machines = formData[`${machineType}Machines`] || [];
+  const renderMachineSection = () => {
+    const count = machineCount || 0;
+    const machines = formData.mriMachines || [];
 
     return (
       <div className="space-y-6">
         <h2 className="text-xl font-semibold text-gray-800">
-          Section {String.fromCharCode(65 + currentStep - 3)} - {machineLabel}{" "}
-          Machines
+          Section {String.fromCharCode(65 + currentStep - 3)} - MRI Machines
         </h2>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Number of {machineLabel} machines
+            Number of MRI machines
           </label>
           <input
             type="number"
             min="0"
-            name={`${machineType}Count`}
+            name="mriCount"
             value={count}
             onChange={(e) =>
-              updateMachineCount(machineType, parseInt(e.target.value) || 0)
+              updateMachineCount(parseInt(e.target.value) || 0)
             }
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
@@ -203,21 +194,54 @@ const SurveyForm = ({
         {Array.from({ length: count }).map((_, index) => (
           <div key={index} className="p-4 border border-gray-200 rounded-lg">
             <h3 className="font-medium text-gray-700 mb-3">
-              {machineLabel} Machine #{index + 1}
+              MRI Machine #{index + 1}
             </h3>
 
             <div className="grid md:grid-cols-2 gap-4 mb-4">
-              {fields.map((field) => (
+              {[
+                { name: "manufacturer", label: "Manufacturer/Model", type: "text" },
+                {
+                  name: "field_strength",
+                  label: "Field Strength",
+                  type: "select",
+                  options: [
+                    { value: "3T", label: "3T" },
+                    { value: "1.5T", label: "1.5T" },
+                    { value: "1.0T", label: "1.0T" },
+                    { value: "<1T", label: "<1T" },
+                  ],
+                },
+                {
+                  name: "year_installed",
+                  label: "Year of Installation",
+                  type: "number",
+                },
+                {
+                  name: "status",
+                  label: "Current Status",
+                  type: "select",
+                  options: [
+                    { value: "working", label: "Working" },
+                    { value: "occasionally_down", label: "Occasionally Down" },
+                    { value: "not_functional", label: "Not Functional" },
+                  ],
+                },
+                {
+                  name: "patients_per_day",
+                  label: "Average Patients per Day",
+                  type: "number",
+                },
+              ].map((field) => (
                 <div key={field.name}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     {field.label}
                   </label>
                   {field.type === "select" ? (
                     <select
-                      name={`${machineType}-${index}-${field.name}`}
+                      name={`mri-${index}-${field.name}`}
                       value={machines[index]?.[field.name] || ""}
                       onChange={(e) =>
-                        handleMachineChange(e, machineType, index, field.name)
+                        handleMachineChange(e, "mri", index, field.name)
                       }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-900"
                     >
@@ -233,10 +257,10 @@ const SurveyForm = ({
                   ) : (
                     <input
                       type={field.type}
-                      name={`${machineType}-${index}-${field.name}`}
+                      name={`mri-${index}-${field.name}`}
                       value={machines[index]?.[field.name] || ""}
                       onChange={(e) =>
-                        handleMachineChange(e, machineType, index, field.name)
+                        handleMachineChange(e, "mri", index, field.name)
                       }
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-blue-900"
                     />
@@ -252,7 +276,7 @@ const SurveyForm = ({
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => handleImageUpload(e, machineType, index)}
+                onChange={(e) => handleImageUpload(e, index)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                 disabled={uploading}
               />
@@ -263,7 +287,7 @@ const SurveyForm = ({
                 <div className="mt-2">
                   <img
                     src={machines[index].photo_url}
-                    alt={`${machineLabel} Machine`}
+                    alt="MRI Machine"
                     className="h-20 rounded object-cover"
                   />
                 </div>
@@ -600,118 +624,9 @@ const SurveyForm = ({
       );
 
     case 3:
-      return renderMachineSection("mri", "MRI", [
-        { name: "manufacturer", label: "Manufacturer/Model", type: "text" },
-        {
-          name: "field_strength",
-          label: "Field Strength",
-          type: "select",
-          options: [
-            { value: "3T", label: "3T" },
-            { value: "1.5T", label: "1.5T" },
-            { value: "1.0T", label: "1.0T" },
-            { value: "<1T", label: "<1T" },
-          ],
-        },
-        {
-          name: "year_installed",
-          label: "Year of Installation",
-          type: "number",
-        },
-        {
-          name: "status",
-          label: "Current Status",
-          type: "select",
-          options: [
-            { value: "working", label: "Working" },
-            { value: "occasionally_down", label: "Occasionally Down" },
-            { value: "not_functional", label: "Not Functional" },
-          ],
-        },
-        {
-          name: "patients_per_day",
-          label: "Average Patients per Day",
-          type: "number",
-        },
-      ]);
+      return renderMachineSection();
 
     case 4:
-      return renderMachineSection("ct", "CT", [
-        { name: "manufacturer", label: "Manufacturer/Model", type: "text" },
-        { name: "slice_capacity", label: "Slice Capacity", type: "text" },
-        {
-          name: "year_installed",
-          label: "Year of Installation",
-          type: "number",
-        },
-        {
-          name: "status",
-          label: "Current Status",
-          type: "select",
-          options: [
-            { value: "working", label: "Working" },
-            { value: "occasionally_down", label: "Occasionally Down" },
-            { value: "not_functional", label: "Not Functional" },
-          ],
-        },
-        {
-          name: "patients_per_day",
-          label: "Average Patients per Day",
-          type: "number",
-        },
-      ]);
-
-    case 5:
-      return renderMachineSection("ultrasound", "Ultrasound", [
-        { name: "manufacturer", label: "Manufacturer/Model", type: "text" },
-        {
-          name: "year_installed",
-          label: "Year of Installation",
-          type: "number",
-        },
-        {
-          name: "status",
-          label: "Current Status",
-          type: "select",
-          options: [
-            { value: "working", label: "Working" },
-            { value: "occasionally_down", label: "Occasionally Down" },
-            { value: "not_functional", label: "Not Functional" },
-          ],
-        },
-        {
-          name: "patients_per_day",
-          label: "Average Patients per Day",
-          type: "number",
-        },
-      ]);
-
-    case 6:
-      return renderMachineSection("xray", "X-Ray", [
-        { name: "manufacturer", label: "Manufacturer/Model", type: "text" },
-        {
-          name: "year_installed",
-          label: "Year of Installation",
-          type: "number",
-        },
-        {
-          name: "status",
-          label: "Current Status",
-          type: "select",
-          options: [
-            { value: "working", label: "Working" },
-            { value: "occasionally_down", label: "Occasionally Down" },
-            { value: "not_functional", label: "Not Functional" },
-          ],
-        },
-        {
-          name: "patients_per_day",
-          label: "Average Patients per Day",
-          type: "number",
-        },
-      ]);
-
-    case 7:
       return (
         <div className="space-y-6">
           <h2 className="text-xl font-semibold text-gray-800">
@@ -768,7 +683,7 @@ const SurveyForm = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Do you have a service engineer for your imaging machines?
+              Do you have a service engineer for your MRI machine?
             </label>
             <select
               name="service_engineer_type"
@@ -821,7 +736,7 @@ const SurveyForm = ({
         </div>
       );
 
-    case 8:
+    case 5:
       return (
         <div className="space-y-6">
           <h2 className="text-xl font-semibold text-gray-800">
@@ -830,7 +745,7 @@ const SurveyForm = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Number of staff in your imaging department:
+              Number of MRI staff in your department:
             </label>
             <div className="grid md:grid-cols-2 gap-4">
               {[
@@ -840,8 +755,6 @@ const SurveyForm = ({
                   label: "Radiographers / Technologists",
                 },
                 { name: "staff_physicists", label: "Medical Physicists" },
-                { name: "staff_nurses", label: "Nurses" },
-                { name: "staff_admin", label: "Admin/Support staff" },
               ].map((field) => (
                 <div key={field.name}>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -862,7 +775,7 @@ const SurveyForm = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Do your staff engage in Continuing Professional Development (CPD)?
+              Do your MRI staff engage in Continuing Professional Development (CPD)?
             </label>
             <select
               name="cpd_participation"
@@ -880,7 +793,7 @@ const SurveyForm = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Would your staff be interested in attending training/workshops?
+              Would your staff be interested in attending MRI-specific training/workshops?
             </label>
             <div className="flex space-x-4">
               <label className="inline-flex items-center">
@@ -926,7 +839,7 @@ const SurveyForm = ({
         </div>
       );
 
-    case 9:
+    case 6:
       return (
         <div className="space-y-6">
           <h2 className="text-xl font-semibold text-gray-800">
@@ -935,36 +848,21 @@ const SurveyForm = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              What is the average cost of the following scans at your facility
-              (in Naira):
+              What is the average cost of an MRI scan at your facility (in Naira)?
             </label>
-            <div className="grid md:grid-cols-2 gap-4">
-              {[
-                { name: "cost_mri", label: "MRI" },
-                { name: "cost_ct", label: "CT" },
-                { name: "cost_ultrasound", label: "Ultrasound" },
-                { name: "cost_xray", label: "X-ray" },
-              ].map((field) => (
-                <div key={field.name}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {field.label}
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    name={field.name}
-                    value={formData[field.name] || ""}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-              ))}
-            </div>
+            <input
+              type="number"
+              min="0"
+              name="cost_mri"
+              value={formData.cost_mri || ""}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              How are imaging costs usually covered? (check all that apply)
+              How are MRI costs usually covered? (check all that apply)
             </label>
             <div className="space-y-2">
               {[
@@ -1055,7 +953,7 @@ const SurveyForm = ({
         </div>
       );
 
-    case 10:
+    case 7:
       return (
         <div className="space-y-6">
           <h2 className="text-xl font-semibold text-gray-800">
@@ -1064,7 +962,7 @@ const SurveyForm = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Has your facility ever participated in imaging-related research?
+              Has your facility ever participated in MRI-related research?
             </label>
             <div className="flex space-x-4">
               <label className="inline-flex items-center">
@@ -1126,7 +1024,7 @@ const SurveyForm = ({
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               What challenges prevent your facility from participating in
-              research?
+              MRI research?
             </label>
             <textarea
               name="challenges"
@@ -1156,7 +1054,7 @@ const SurveyForm = ({
         </div>
       );
 
-    case 11:
+    case 8:
       return (
         <div className="space-y-6">
           <h2 className="text-xl font-semibold text-gray-800">
@@ -1166,7 +1064,7 @@ const SurveyForm = ({
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               What are the biggest challenges your facility faces in running
-              imaging services?
+              MRI services?
             </label>
             <textarea
               name="challenges"
@@ -1180,7 +1078,7 @@ const SurveyForm = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              What solutions do you recommend to improve imaging services in
+              What solutions do you recommend to improve MRI services in
               Nigeria?
             </label>
             <textarea
@@ -1211,7 +1109,7 @@ const SurveyForm = ({
         </div>
       );
 
-    case 12:
+    case 9:
       return (
         <div className="space-y-6">
           <h2 className="text-xl font-semibold text-gray-800">
@@ -1295,7 +1193,7 @@ const SurveyForm = ({
         </div>
       );
 
-    case 13:
+    case 10:
       return (
         <div className="text-center py-12">
           <div className="bg-green-50 border border-green-200 rounded-lg p-8 max-w-2xl mx-auto">
