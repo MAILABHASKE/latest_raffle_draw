@@ -42,9 +42,9 @@ const Home = () => {
           <p className="text-lg sm:text-xl md:text-2xl text-blue-100 mb-6 font-light">
             Take part in the{" "}
             <span className="font-semibold text-yellow-300">
-              CAMERA Need Assessment Survey (NAS)
+              CAMERA Need Assessment Survey (NAS) 
             </span>
-            for a chance to win{" "}
+             for a chance to win{" "}
             <span className="font-bold text-yellow-300 mx-1">$500</span>. Your
             participation will contribute to building a comprehensive GIS
             database of medical imaging equipment across Nigeria.
