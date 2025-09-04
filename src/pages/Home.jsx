@@ -42,7 +42,7 @@ const Home = () => {
           <p className="text-lg sm:text-xl md:text-2xl text-blue-100 mb-6 font-light">
             Take part in the{" "}
             <span className="font-semibold text-yellow-300">
-              Nigeria Medical Imaging Survey (NMIS)
+              CAMERA Need Assessment Survey (NAS)
             </span>
             for a chance to win{" "}
             <span className="font-bold text-yellow-300 mx-1">$500</span>. Your
@@ -51,16 +51,7 @@ const Home = () => {
           </p>
 
           <p className="text-base sm:text-lg md:text-xl text-blue-100 font-light">
-            (This survey is adapted and modified from the CAMERA Needs
-            Assessment Survey (NAS))
-            <br />
-            Reference: Anazodo UC, Ng JJ, Ehiogu B, Obungoloch J, Fatade A, et
-            al.
-            <em className="block mt-2">
-              A framework for advancing sustainable magnetic resonance imaging
-              access in Africa.
-            </em>
-            NMR Biomed. 2023 Mar;36(3):e4846. doi: 10.1002/nbm.4846.
+            The Needs Assessment Survey (NAS) was designed to identify MRI needs unique to Africa based on a pilot field survey of seven MRI facilities in Nigeria in 2020 and the RAD-AID Radiology-Readiness Survey TM . The survey, along with a series of symposia at international MRI society meetings informed a framework for addressing MRI needs in Africa and a model for advancing imaging capacity in resource-limited settings.
           </p>
         </div>
 
