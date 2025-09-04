@@ -11,10 +11,9 @@ const SurveyPage = () => {
   const [referralCode, setReferralCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const anonymousId = useAnonymousSession();
-  const totalSteps = 13;
+  const totalSteps = 10; // Reduced from 13 to 10 steps
 
   const [formData, setFormData] = useState({
-    // ... existing form data structure
     respondent_name: "",
     respondent_email: "",
     respondent_phone: "",
@@ -31,13 +30,7 @@ const SurveyPage = () => {
     contact_phone: "",
     contact_email: "",
     mriCount: 0,
-    ctCount: 0,
-    ultrasoundCount: 0,
-    xrayCount: 0,
     mriMachines: [],
-    ctMachines: [],
-    ultrasoundMachines: [],
-    xrayMachines: [],
     power_availability: "",
     has_backup_power: null,
     service_engineer_type: "",
@@ -45,14 +38,9 @@ const SurveyPage = () => {
     staff_radiologists: 0,
     staff_radiographers: 0,
     staff_physicists: 0,
-    staff_nurses: 0,
-    staff_admin: 0,
     cpd_participation: "",
     interest_in_training: null,
     cost_mri: "",
-    cost_ct: "",
-    cost_ultrasound: "",
-    cost_xray: "",
     payment_methods: [],
     payment_methods_other: "",
     research_participation: null,
@@ -79,11 +67,8 @@ const SurveyPage = () => {
   const calculatePoints = useCallback(() => {
     let points = 50; // Base points for completing the survey
 
-    // Points for each machine reported
+    // Points for each MRI machine reported
     points += (formData.mriCount || 0) * 10;
-    points += (formData.ctCount || 0) * 8;
-    points += (formData.ultrasoundCount || 0) * 5;
-    points += (formData.xrayCount || 0) * 3;
 
     // Points for detailed information
     if (formData.respondent_email) points += 5;
@@ -142,7 +127,6 @@ const SurveyPage = () => {
         .from("facilities")
         .insert([
           {
-            // ... all your existing fields
             respondent_name: formData.respondent_name,
             respondent_email: formData.respondent_email,
             respondent_phone: formData.respondent_phone,
@@ -165,14 +149,9 @@ const SurveyPage = () => {
             staff_radiologists: formData.staff_radiologists,
             staff_radiographers: formData.staff_radiographers,
             staff_physicists: formData.staff_physicists,
-            staff_nurses: formData.staff_nurses,
-            staff_admin: formData.staff_admin,
             cpd_participation: formData.cpd_participation,
             interest_in_training: formData.interest_in_training,
             cost_mri: formData.cost_mri,
-            cost_ct: formData.cost_ct,
-            cost_ultrasound: formData.cost_ultrasound,
-            cost_xray: formData.cost_xray,
             payment_methods: formData.payment_methods,
             payment_methods_other: formData.payment_methods_other,
             research_participation: formData.research_participation,
@@ -191,24 +170,9 @@ const SurveyPage = () => {
 
       if (facilityError) throw facilityError;
 
-      // Save all machines
+      // Save MRI machines
       const allMachines = [
         ...formData.mriMachines.map((machine) => ({
-          ...machine,
-          facility_id: facility.id,
-          anonymous_id: anonymousId,
-        })),
-        ...formData.ctMachines.map((machine) => ({
-          ...machine,
-          facility_id: facility.id,
-          anonymous_id: anonymousId,
-        })),
-        ...formData.ultrasoundMachines.map((machine) => ({
-          ...machine,
-          facility_id: facility.id,
-          anonymous_id: anonymousId,
-        })),
-        ...formData.xrayMachines.map((machine) => ({
           ...machine,
           facility_id: facility.id,
           anonymous_id: anonymousId,
@@ -232,7 +196,7 @@ const SurveyPage = () => {
       setFormData((prev) => ({ ...prev, points }));
 
       // Move to confirmation step
-      setCurrentStep(13);
+      setCurrentStep(10);
     } catch (error) {
       console.error("Error submitting survey:", error);
       alert("Error submitting survey. Please try again.");
@@ -274,11 +238,11 @@ const SurveyPage = () => {
 
   const handleMachineChange = (e, machineType, index, fieldName) => {
     const { value } = e.target;
-    const machineKey = `${machineType}Machines`;
+    const machineKey = "mriMachines";
     const updatedMachines = [...(formData[machineKey] || [])];
 
     if (!updatedMachines[index]) {
-      updatedMachines[index] = { machine_type: machineType };
+      updatedMachines[index] = { machine_type: "mri" };
     }
 
     updatedMachines[index][fieldName] = value;
@@ -308,7 +272,7 @@ const SurveyPage = () => {
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="p-2 bg-gradient-to-r from-blue-900 to-cyan-600">
           <h1 className="text-2xl md:text-3xl font-bold text-white text-center">
-            Nigeria Medical Imaging Facility Survey
+            Nigeria MRI Facility Survey
           </h1>
         </div>
 
@@ -325,7 +289,7 @@ const SurveyPage = () => {
             />
           )}
 
-          {currentStep < 13 && (
+          {currentStep < 10 && (
             <div className="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-200">
               <p className="text-blue-800">
                 <strong>Raffle Points:</strong> Complete the survey to earn
