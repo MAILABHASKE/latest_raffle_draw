@@ -14,37 +14,37 @@ const Home = () => {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500 rounded-full filter blur-3xl opacity-20 animate-pulse"></div>
       </div>
 
-      {/* CAMERA NAS Logo and Link */}
-      <div className="relative z-20 pt-6 px-6 flex justify-center sm:justify-end">
-        <a 
-          href="https://www.cameramriafrica.org/nas" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="flex flex-col items-center group"
-        >
-          <div className="w-32 h-32 bg-white rounded-lg p-2 shadow-lg mb-2 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
-            <img 
-              src={CameraNasLogo} 
-              alt="CAMERA NAS Logo" 
-              className="max-w-full max-h-full object-contain"
-            />
-          </div>
-          <span className="text-blue-100 text-sm font-medium group-hover:text-cyan-300 transition-colors duration-300">
-            Learn More
-          </span>
-        </a>
-      </div>
-
-      {/* Hero section */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-4 py-12 -mt-16">
-        <div className="mb-8 relative">
-          <div className="absolute -inset-4 bg-blue-500 rounded-full filter blur-xl opacity-30 animate-ping"></div>
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white relative">
-            MEDICAL IMAGING{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 block mt-2 md:mt-4">
-              RAFFLE
+      {/* Hero section with centered logo */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-4 py-12">
+        {/* CAMERA NAS Logo - Centered at the top */}
+        <div className="mb-8 flex flex-col items-center">
+          <a 
+            href="https://www.cameramriafrica.org/nas" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex flex-col items-center group mb-6"
+          >
+            <div className="w-40 h-40 bg-white rounded-lg p-3 shadow-lg group-hover:scale-105 transition-transform duration-300 flex items-center justify-center mb-3">
+              <img 
+                src={CameraNasLogo} 
+                alt="CAMERA NAS Logo" 
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+            <span className="text-blue-100 text-sm font-medium group-hover:text-cyan-300 transition-colors duration-300">
+              Learn More
             </span>
-          </h1>
+          </a>
+          
+          <div className="relative">
+            <div className="absolute -inset-4 bg-blue-500 rounded-full filter blur-xl opacity-30 animate-ping"></div>
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white relative">
+              MEDICAL IMAGING{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 block mt-2 md:mt-4">
+                RAFFLE
+              </span>
+            </h1>
+          </div>
         </div>
 
         {/* BIG BOLD $500 PRIZE SECTION */}
@@ -229,7 +229,7 @@ const Home = () => {
                 href="https://www.cameramriafrica.org/nas" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-300"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-300"
               >
                 <img 
                   src={CameraNasLogo} 
