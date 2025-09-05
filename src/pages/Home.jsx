@@ -11,8 +11,27 @@ const Home = () => {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500 rounded-full filter blur-3xl opacity-20 animate-pulse"></div>
       </div>
 
+      {/* CAMERA NAS Logo and Link */}
+      <div className="relative z-20 pt-6 px-6 flex justify-center">
+        <a 
+          href="https://www.cameramriafrica.org/nas" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="flex flex-col items-center group"
+        >
+          <div className="w-24 h-24 bg-white rounded-full p-3 shadow-lg mb-2 group-hover:scale-110 transition-transform duration-300">
+            <div className="w-full h-full bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-xs text-center">CAMERA NAS</span>
+            </div>
+          </div>
+          <span className="text-blue-100 text-sm font-medium group-hover:text-cyan-300 transition-colors duration-300">
+            Learn More
+          </span>
+        </a>
+      </div>
+
       {/* Hero section */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-4 py-12">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-4 py-12 -mt-16">
         <div className="mb-8 relative">
           <div className="absolute -inset-4 bg-blue-500 rounded-full filter blur-xl opacity-30 animate-ping"></div>
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white relative">
@@ -196,6 +215,22 @@ const Home = () => {
               >
                 Get Referral Link
               </Link>
+            </div>
+            
+            {/* CAMERA NAS Link at bottom */}
+            <div className="mt-10 pt-6 border-t border-gray-200">
+              <p className="text-gray-600 mb-4">A project by</p>
+              <a 
+                href="https://www.cameramriafrica.org/nas" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-300"
+              >
+                <span className="font-semibold">CAMERA NAS</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+              </a>
             </div>
           </div>
         </div>
