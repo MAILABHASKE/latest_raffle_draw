@@ -2,6 +2,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+// Import your actual logo - adjust the path based on where you store it
+import CameraNasLogo from "../assets/camera-nas-logo.png";
+
 const Home = () => {
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -12,17 +15,19 @@ const Home = () => {
       </div>
 
       {/* CAMERA NAS Logo and Link */}
-      <div className="relative z-20 pt-6 px-6 flex justify-center">
+      <div className="relative z-20 pt-6 px-6 flex justify-center sm:justify-end">
         <a 
           href="https://www.cameramriafrica.org/nas" 
           target="_blank" 
           rel="noopener noreferrer"
           className="flex flex-col items-center group"
         >
-          <div className="w-24 h-24 bg-white rounded-full p-3 shadow-lg mb-2 group-hover:scale-110 transition-transform duration-300">
-            <div className="w-full h-full bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-xs text-center">CAMERA NAS</span>
-            </div>
+          <div className="w-32 h-32 bg-white rounded-lg p-2 shadow-lg mb-2 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
+            <img 
+              src={CameraNasLogo} 
+              alt="CAMERA NAS Logo" 
+              className="max-w-full max-h-full object-contain"
+            />
           </div>
           <span className="text-blue-100 text-sm font-medium group-hover:text-cyan-300 transition-colors duration-300">
             Learn More
@@ -226,6 +231,11 @@ const Home = () => {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-300"
               >
+                <img 
+                  src={CameraNasLogo} 
+                  alt="CAMERA NAS" 
+                  className="h-6 object-contain"
+                />
                 <span className="font-semibold">CAMERA NAS</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
