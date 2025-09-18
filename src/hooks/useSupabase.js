@@ -1,4 +1,4 @@
-// hooks/useSupabase.js
+// ===== FILE: hooks/useSupabase.js =====
 import { createClient } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
 
@@ -6,6 +6,14 @@ const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Example state → coordinates map (you should expand this list as needed)
+const stateCoordinates = {
+  Lagos: { lat: 6.5244, lng: 3.3792 },
+  Abuja: { lat: 9.0765, lng: 7.3986 },
+  Kano: { lat: 12.0022, lng: 8.5919 },
+  // add more states here...
+};
 
 // Custom hook for facility data
 export const useFacilities = (approvedOnly = false) => {
@@ -15,7 +23,7 @@ export const useFacilities = (approvedOnly = false) => {
   useEffect(() => {
     fetchFacilities();
 
-    // Set up real-time subscription with correct syntax
+    // Real-time subscription for changes
     const channel = supabase
       .channel("facilities-changes")
       .on(
@@ -26,18 +34,17 @@ export const useFacilities = (approvedOnly = false) => {
           table: "facilities",
         },
         (payload) => {
-          if (
-            payload.eventType === "INSERT" ||
-            payload.eventType === "UPDATE"
-          ) {
+          if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
             setFacilities((current) => {
               const existing = current.find((f) => f.id === payload.new.id);
               if (existing) {
                 return current.map((f) =>
-                  f.id === payload.new.id ? payload.new : f
+                  f.id === payload.new.id
+                    ? { ...payload.new, machines: f.machines }
+                    : f
                 );
               } else {
-                return [...current, payload.new];
+                return [...current, { ...payload.new, machines: [] }];
               }
             });
           } else if (payload.eventType === "DELETE") {
@@ -68,7 +75,23 @@ export const useFacilities = (approvedOnly = false) => {
       const { data, error } = await query;
 
       if (error) throw error;
-      setFacilities(data || []);
+
+      // Add default coordinates if missing
+      const facilitiesWithCoords = (data || []).map((facility) => {
+        if (!facility.latitude || !facility.longitude) {
+          const stateCoord = stateCoordinates[facility.state];
+          if (stateCoord) {
+            return {
+              ...facility,
+              latitude: stateCoord.lat,
+              longitude: stateCoord.lng,
+            };
+          }
+        }
+        return facility;
+      });
+
+      setFacilities(facilitiesWithCoords);
     } catch (error) {
       console.error("Error fetching facilities:", error);
     } finally {
@@ -110,7 +133,6 @@ export const useAuth = () => {
         data: metadata,
       },
     });
-
     if (error) throw error;
     return data;
   };
@@ -120,7 +142,6 @@ export const useAuth = () => {
       email,
       password,
     });
-
     if (error) throw error;
     return data;
   };
