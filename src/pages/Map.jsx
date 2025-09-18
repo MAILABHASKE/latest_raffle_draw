@@ -128,8 +128,8 @@ const Map = () => {
 
     if (selectedMachine !== "All") {
       filtered = filtered.filter((f) =>
-        f.machines.some(
-          (m) => m.machine_type === selectedMachine && m.status === "working"
+        f.machines?.some(
+          (m) => m.machine_type === selectedMachine && (m.status === "working" || !m.status)
         )
       );
     }
@@ -219,8 +219,10 @@ const Map = () => {
                 // Get coordinates for the facility's state
                 const coords = stateCoordinates[facility.state] || { lat: 9.0820, lng: 8.6753 };
                 
-                // Count working machines
-                const workingMachines = facility.machines?.filter(m => m.status === "working") || [];
+                // Count working machines (treat null status as working)
+                const workingMachines = facility.machines?.filter(m => 
+                  m.status === "working" || !m.status
+                ) || [];
                 const workingMachineCount = workingMachines.length;
                 
                 // Determine primary machine type for icon
@@ -236,7 +238,7 @@ const Map = () => {
                     });
                     
                     primaryMachineType = Object.keys(machineCounts).reduce((a, b) => 
-                      machineCounts[a] > machineCounts[b] ? a : b
+                      machineCounts[a] > machineCounts[b] ? a : b, Object.keys(machineCounts)[0] || "default"
                     );
                   }
                 }
@@ -255,18 +257,27 @@ const Map = () => {
                         <div className="mt-2">
                           <h4 className="text-sm font-medium text-gray-700">Equipment:</h4>
                           <ul className="text-xs">
-                            {facility.machines?.map((machine) => (
-                              <li key={machine.id} className="flex justify-between">
-                                <span>{machine.machine_type.toUpperCase()}:</span>
-                                <span className={
-                                  machine.status === "working" ? "text-green-600" :
-                                  machine.status === "occasionally_down" ? "text-yellow-600" :
-                                  "text-red-600"
-                                }>
-                                  {machine.status.replace("_", " ")}
-                                </span>
-                              </li>
-                            ))}
+                            {facility.machines?.map((machine) => {
+                              // Handle null status values
+                              const status = machine.status || "unknown";
+                              const statusText = status === "unknown" 
+                                ? "status unknown" 
+                                : status.replace("_", " ");
+                              
+                              return (
+                                <li key={machine.id} className="flex justify-between">
+                                  <span>{machine.machine_type.toUpperCase()}:</span>
+                                  <span className={
+                                    status === "working" ? "text-green-600" :
+                                    status === "occasionally_down" ? "text-yellow-600" :
+                                    status === "unknown" ? "text-gray-600" :
+                                    "text-red-600"
+                                  }>
+                                    {statusText}
+                                  </span>
+                                </li>
+                              );
+                            })}
                           </ul>
                         </div>
                         
@@ -306,28 +317,36 @@ const Map = () => {
                   Equipment:
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                  {facility.machines?.map((machine) => (
-                    <span
-                      key={machine.id}
-                      className={`text-xs px-2 py-1 rounded-full ${
-                        machine.status === "working"
-                          ? "bg-green-100 text-green-800"
-                          : machine.status === "occasionally_down"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {machine.machine_type.toUpperCase()}
-                    </span>
-                  ))}
+                  {facility.machines?.map((machine) => {
+                    // Handle null status values
+                    const status = machine.status || "unknown";
+                    
+                    return (
+                      <span
+                        key={machine.id}
+                        className={`text-xs px-2 py-1 rounded-full ${
+                          status === "working"
+                            ? "bg-green-100 text-green-800"
+                            : status === "occasionally_down"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : status === "unknown"
+                            ? "bg-gray-100 text-gray-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {machine.machine_type.toUpperCase()}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
 
               <div className="mt-3 flex justify-between items-center">
                 <span className="text-xs text-gray-500">
                   {
-                    facility.machines?.filter((m) => m.status === "working")
-                      .length
+                    facility.machines?.filter((m) => 
+                      m.status === "working" || !m.status
+                    ).length
                   }{" "}
                   working machines
                 </span>
