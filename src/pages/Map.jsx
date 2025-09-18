@@ -1,15 +1,123 @@
 // pages/Map.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
 import { useFacilities } from "../hooks/useSupabase";
+import "leaflet/dist/leaflet.css";
+
+// Fix for default markers in react-leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+});
+
+// Nigerian state coordinates
+const stateCoordinates = {
+  "Abia": { lat: 5.4307, lng: 7.5244 },
+  "Adamawa": { lat: 9.3265, lng: 12.3984 },
+  "Akwa Ibom": { lat: 4.9057, lng: 7.8537 },
+  "Anambra": { lat: 6.2209, lng: 7.0722 },
+  "Bauchi": { lat: 10.3103, lng: 9.8439 },
+  "Bayelsa": { lat: 4.9267, lng: 6.2676 },
+  "Benue": { lat: 7.3369, lng: 8.7404 },
+  "Borno": { lat: 11.8333, lng: 13.1500 },
+  "Cross River": { lat: 5.8702, lng: 8.5988 },
+  "Delta": { lat: 5.7040, lng: 5.9339 },
+  "Ebonyi": { lat: 6.2649, lng: 8.0137 },
+  "Edo": { lat: 6.3400, lng: 5.6200 },
+  "Ekiti": { lat: 7.6333, lng: 5.2167 },
+  "Enugu": { lat: 6.4584, lng: 7.5464 },
+  "FCT – Abuja": { lat: 9.0765, lng: 7.3986 },
+  "Gombe": { lat: 10.2897, lng: 11.1713 },
+  "Imo": { lat: 5.4833, lng: 7.0333 },
+  "Jigawa": { lat: 12.0000, lng: 9.7500 },
+  "Kaduna": { lat: 10.5231, lng: 7.4403 },
+  "Kano": { lat: 12.0022, lng: 8.5920 },
+  "Katsina": { lat: 12.9908, lng: 7.6000 },
+  "Kebbi": { lat: 12.4500, lng: 4.2000 },
+  "Kogi": { lat: 7.8000, lng: 6.7333 },
+  "Kwara": { lat: 8.5000, lng: 4.5500 },
+  "Lagos": { lat: 6.5244, lng: 3.3792 },
+  "Nasarawa": { lat: 8.5000, lng: 8.5000 },
+  "Niger": { lat: 9.6000, lng: 6.5500 },
+  "Ogun": { lat: 7.1557, lng: 3.3451 },
+  "Ondo": { lat: 7.2500, lng: 5.2000 },
+  "Osun": { lat: 7.6167, lng: 4.5167 },
+  "Oyo": { lat: 7.3833, lng: 4.0167 },
+  "Plateau": { lat: 9.9167, lng: 8.9000 },
+  "Rivers": { lat: 4.7500, lng: 7.0000 },
+  "Sokoto": { lat: 13.0667, lng: 5.2333 },
+  "Taraba": { lat: 8.8833, lng: 11.3667 },
+  "Yobe": { lat: 11.7460, lng: 11.9660 },
+  "Zamfara": { lat: 12.1700, lng: 6.6600 }
+};
+
+// Custom icons for different machine types
+const createCustomIcon = (machineType, count) => {
+  let html = '';
+  let className = '';
+  let size = 30 + Math.min(count, 5) * 3; // Larger icon for more machines
+  
+  switch(machineType) {
+    case 'mri':
+      html = '🧲';
+      className = 'mri-marker';
+      break;
+    case 'ct':
+      html = '📊';
+      className = 'ct-marker';
+      break;
+    case 'xray':
+      html = '📷';
+      className = 'xray-marker';
+      break;
+    case 'ultrasound':
+      html = '🔊';
+      className = 'ultrasound-marker';
+      break;
+    default:
+      html = '🏥';
+      className = 'default-marker';
+  }
+  
+  return L.divIcon({
+    html: `<div class="custom-marker ${className}">${html}<span class="machine-count">${count}</span></div>`,
+    className: 'custom-div-icon',
+    iconSize: [size, size],
+    iconAnchor: [size/2, size/2],
+    popupAnchor: [0, -size/2]
+  });
+};
+
+// Component to handle map view changes when filters update
+function MapViewUpdater({ filteredFacilities, stateCoordinates }) {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (filteredFacilities.length > 0) {
+      const bounds = L.latLngBounds(
+        filteredFacilities.map(f => {
+          const coords = stateCoordinates[f.state] || { lat: 9.0820, lng: 8.6753 };
+          return [coords.lat, coords.lng];
+        })
+      );
+      map.fitBounds(bounds, { padding: [50, 50] });
+    } else {
+      // Default view of Nigeria
+      map.setView([9.0820, 8.6753], 6);
+    }
+  }, [filteredFacilities, map, stateCoordinates]);
+  
+  return null;
+}
 
 const Map = () => {
   const { facilities, loading } = useFacilities(true);
   const [selectedState, setSelectedState] = useState("All");
   const [selectedMachine, setSelectedMachine] = useState("All");
   const [filteredFacilities, setFilteredFacilities] = useState([]);
-  const mapRef = useRef(null);
-  const leafletMapRef = useRef(null);
-  const markersRef = useRef([]);
 
   useEffect(() => {
     let filtered = facilities;
@@ -28,208 +136,6 @@ const Map = () => {
 
     setFilteredFacilities(filtered);
   }, [facilities, selectedState, selectedMachine]);
-
-  // Initialize Leaflet map
-  useEffect(() => {
-    if (!mapRef.current || leafletMapRef.current) return;
-
-    // Load Leaflet dynamically
-    const loadLeaflet = async () => {
-      // Add Leaflet CSS
-      if (!document.querySelector('link[href*="leaflet"]')) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-        document.head.appendChild(link);
-      }
-
-      // Load Leaflet JS
-      if (!window.L) {
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-        script.onload = initializeMap;
-        document.head.appendChild(script);
-      } else {
-        initializeMap();
-      }
-    };
-
-    const initializeMap = () => {
-      if (!window.L || leafletMapRef.current) return;
-
-      // Initialize map centered on Nigeria
-      const map = window.L.map(mapRef.current, {
-        center: [9.0765, 7.3986], // Nigeria center coordinates
-        zoom: 6,
-        scrollWheelZoom: true,
-      });
-
-      // Add OpenStreetMap tiles
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 18,
-      }).addTo(map);
-
-      leafletMapRef.current = map;
-    };
-
-    loadLeaflet();
-
-    return () => {
-      if (leafletMapRef.current) {
-        leafletMapRef.current.remove();
-        leafletMapRef.current = null;
-      }
-    };
-  }, []);
-
-  // Update map markers when filtered facilities change
-  useEffect(() => {
-    if (!leafletMapRef.current || !window.L) return;
-
-    // Clear existing markers
-    markersRef.current.forEach(marker => {
-      leafletMapRef.current.removeLayer(marker);
-    });
-    markersRef.current = [];
-
-    // Add markers for filtered facilities
-    filteredFacilities.forEach(facility => {
-      // Get coordinates (you'll need to add lat/lng to your database or use a geocoding service)
-      // For now, I'll use approximate coordinates for Nigerian states
-      const coordinates = getStateCoordinates(facility.state);
-      
-      if (coordinates) {
-        // Count machines by type
-        const machineCount = facility.machines?.length || 0;
-        const workingMachines = facility.machines?.filter(m => m.status === 'working').length || 0;
-        const mriMachines = facility.machines?.filter(m => m.machine_type === 'mri').length || 0;
-        
-        // Create custom icon based on machine availability
-        const iconColor = workingMachines > 0 ? 'green' : 'red';
-        const iconHtml = `
-          <div style="
-            background-color: ${iconColor};
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-          ">
-            ${machineCount}
-          </div>
-        `;
-
-        const customIcon = window.L.divIcon({
-          html: iconHtml,
-          className: 'custom-marker',
-          iconSize: [20, 20],
-          iconAnchor: [10, 10],
-        });
-
-        // Create marker
-        const marker = window.L.marker(coordinates, { icon: customIcon });
-
-        // Create popup content
-        const popupContent = `
-          <div style="min-width: 200px; font-family: sans-serif;">
-            <h3 style="margin: 0 0 8px 0; color: #1e40af; font-size: 16px;">
-              ${facility.name}
-            </h3>
-            <p style="margin: 0 0 8px 0; color: #374151; font-size: 14px;">
-              ${facility.address}, ${facility.state}
-            </p>
-            <div style="margin-bottom: 8px;">
-              <strong style="color: #374151; font-size: 14px;">Equipment:</strong>
-              <div style="margin-top: 4px;">
-                ${facility.machines?.map(machine => `
-                  <span style="
-                    display: inline-block;
-                    background-color: ${machine.status === 'working' ? '#dcfce7' : machine.status === 'occasionally_down' ? '#fef3c7' : '#fee2e2'};
-                    color: ${machine.status === 'working' ? '#166534' : machine.status === 'occasionally_down' ? '#92400e' : '#991b1b'};
-                    padding: 2px 6px;
-                    border-radius: 12px;
-                    font-size: 12px;
-                    margin: 2px;
-                  ">
-                    ${machine.machine_type.toUpperCase()}
-                  </span>
-                `).join('') || 'No machines listed'}
-              </div>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="color: #6b7280; font-size: 12px;">
-                ${workingMachines} working machines
-              </span>
-              <span style="color: #1e40af; font-size: 12px; font-weight: 600;">
-                ${facility.points} points
-              </span>
-            </div>
-          </div>
-        `;
-
-        marker.bindPopup(popupContent);
-        marker.addTo(leafletMapRef.current);
-        markersRef.current.push(marker);
-      }
-    });
-
-    // Fit map to show all markers if there are any
-    if (markersRef.current.length > 0) {
-      const group = new window.L.featureGroup(markersRef.current);
-      leafletMapRef.current.fitBounds(group.getBounds().pad(0.1));
-    }
-  }, [filteredFacilities]);
-
-  // Function to get approximate coordinates for Nigerian states
-  const getStateCoordinates = (state) => {
-    const stateCoords = {
-      'Abia': [5.4527, 7.5248],
-      'Adamawa': [9.3265, 12.3984],
-      'Akwa Ibom': [5.0077, 7.8536],
-      'Anambra': [6.2209, 6.9995],
-      'Bauchi': [10.3158, 9.8442],
-      'Bayelsa': [4.6684, 6.2671],
-      'Benue': [7.1906, 8.7378],
-      'Borno': [11.8846, 13.1571],
-      'Cross River': [5.9735, 8.3256],
-      'Delta': [5.8962, 5.6809],
-      'Ebonyi': [6.2649, 8.0137],
-      'Edo': [6.3350, 5.6037],
-      'Ekiti': [7.7193, 5.3111],
-      'Enugu': [6.5244, 7.5112],
-      'FCT – Abuja': [9.0765, 7.3986],
-      'Gombe': [10.2959, 11.1689],
-      'Imo': [5.5720, 7.0588],
-      'Jigawa': [12.2343, 9.5938],
-      'Kaduna': [10.5105, 7.4165],
-      'Kano': [12.0022, 8.5920],
-      'Katsina': [12.9908, 7.6018],
-      'Kebbi': [12.4539, 4.1975],
-      'Kogi': [7.8006, 6.7401],
-      'Kwara': [8.9670, 4.5993],
-      'Lagos': [6.5244, 3.3792],
-      'Nasarawa': [8.5378, 8.3206],
-      'Niger': [10.3759, 5.4328],
-      'Ogun': [7.1605, 3.3469],
-      'Ondo': [7.2527, 5.2058],
-      'Osun': [7.5629, 4.5200],
-      'Oyo': [8.0000, 4.0000],
-      'Plateau': [9.2182, 9.5179],
-      'Rivers': [4.8156, 6.9778],
-      'Sokoto': [13.0609, 5.2476],
-      'Taraba': [8.8921, 11.3604],
-      'Yobe': [11.7466, 11.9609],
-      'Zamfara': [12.1703, 6.2284]
-    };
-    return stateCoords[state] || null;
-  };
 
   if (loading) {
     return (
@@ -262,14 +168,7 @@ const Map = () => {
                 className="px-3 py-2 border border-gray-300 rounded-lg"
               >
                 <option value="All">All States</option>
-                {[
-                  "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa",
-                  "Benue", "Borno", "Cross River", "Delta", "Ebonyi", "Edo",
-                  "Ekiti", "Enugu", "FCT – Abuja", "Gombe", "Imo", "Jigawa",
-                  "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos",
-                  "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau",
-                  "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara"
-                ].map((state) => (
+                {Object.keys(stateCoordinates).map((state) => (
                   <option key={state} value={state}>
                     {state}
                   </option>
@@ -296,35 +195,95 @@ const Map = () => {
 
             <div className="flex items-end">
               <span className="text-sm text-gray-900">
-                Showing {filteredFacilities.length} of {facilities.length} facilities
+                Showing {filteredFacilities.length} of {facilities.length}{" "}
+                facilities
               </span>
             </div>
           </div>
         </div>
 
-        {/* Interactive Map */}
+        {/* Map Visualization */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
-          <div 
-            ref={mapRef}
-            className="h-96 w-full"
-            style={{ minHeight: '400px' }}
-          >
-            {/* Map will be rendered here by Leaflet */}
-          </div>
-          <div className="p-4 bg-gray-50 border-t">
-            <div className="flex items-center justify-between text-sm text-gray-600">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center">
-                  <div className="w-4 h-4 bg-green-500 rounded-full mr-2 border-2 border-white shadow"></div>
-                  <span>Facilities with working equipment</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-4 h-4 bg-red-500 rounded-full mr-2 border-2 border-white shadow"></div>
-                  <span>Facilities with non-working equipment</span>
-                </div>
-              </div>
-              <span>Number in marker = total machines</span>
-            </div>
+          <div className="h-96 relative">
+            <MapContainer
+              center={[9.0820, 8.6753]} // Center of Nigeria
+              zoom={6}
+              style={{ height: "100%", width: "100%" }}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              
+              {filteredFacilities.map((facility) => {
+                // Get coordinates for the facility's state
+                const coords = stateCoordinates[facility.state] || { lat: 9.0820, lng: 8.6753 };
+                
+                // Count working machines
+                const workingMachines = facility.machines?.filter(m => m.status === "working") || [];
+                const workingMachineCount = workingMachines.length;
+                
+                // Determine primary machine type for icon
+                let primaryMachineType = "default";
+                if (workingMachines.length > 0) {
+                  if (selectedMachine !== "All") {
+                    primaryMachineType = selectedMachine;
+                  } else {
+                    // Find the machine type with the most working units
+                    const machineCounts = {};
+                    workingMachines.forEach(m => {
+                      machineCounts[m.machine_type] = (machineCounts[m.machine_type] || 0) + 1;
+                    });
+                    
+                    primaryMachineType = Object.keys(machineCounts).reduce((a, b) => 
+                      machineCounts[a] > machineCounts[b] ? a : b
+                    );
+                  }
+                }
+                
+                return (
+                  <Marker
+                    key={facility.id}
+                    position={[coords.lat, coords.lng]}
+                    icon={createCustomIcon(primaryMachineType, workingMachineCount)}
+                  >
+                    <Popup>
+                      <div className="p-2">
+                        <h3 className="font-semibold text-blue-800">{facility.name}</h3>
+                        <p className="text-sm text-gray-600">{facility.address}, {facility.state}</p>
+                        
+                        <div className="mt-2">
+                          <h4 className="text-sm font-medium text-gray-700">Equipment:</h4>
+                          <ul className="text-xs">
+                            {facility.machines?.map((machine) => (
+                              <li key={machine.id} className="flex justify-between">
+                                <span>{machine.machine_type.toUpperCase()}:</span>
+                                <span className={
+                                  machine.status === "working" ? "text-green-600" :
+                                  machine.status === "occasionally_down" ? "text-yellow-600" :
+                                  "text-red-600"
+                                }>
+                                  {machine.status.replace("_", " ")}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        
+                        <div className="mt-2 text-xs text-gray-500">
+                          {workingMachineCount} working machines
+                        </div>
+                      </div>
+                    </Popup>
+                  </Marker>
+                );
+              })}
+              
+              <MapViewUpdater 
+                filteredFacilities={filteredFacilities} 
+                stateCoordinates={stateCoordinates} 
+              />
+            </MapContainer>
           </div>
         </div>
 
@@ -366,7 +325,10 @@ const Map = () => {
 
               <div className="mt-3 flex justify-between items-center">
                 <span className="text-xs text-gray-500">
-                  {facility.machines?.filter((m) => m.status === "working").length}{" "}
+                  {
+                    facility.machines?.filter((m) => m.status === "working")
+                      .length
+                  }{" "}
                   working machines
                 </span>
                 <span className="text-xs font-medium text-blue-900">
@@ -383,6 +345,42 @@ const Map = () => {
           </div>
         )}
       </div>
+      
+      <style jsx>{`
+        .custom-marker {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background: white;
+          border: 2px solid #3b82f6;
+          font-size: 16px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          position: relative;
+        }
+        .mri-marker { border-color: #10b981; }
+        .ct-marker { border-color: #8b5cf6; }
+        .xray-marker { border-color: #f59e0b; }
+        .ultrasound-marker { border-color: #ec4899; }
+        
+        .machine-count {
+          position: absolute;
+          bottom: -5px;
+          right: -5px;
+          background: #ef4444;
+          color: white;
+          border-radius: 50%;
+          width: 18px;
+          height: 18px;
+          font-size: 10px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-weight: bold;
+        }
+      `}</style>
     </div>
   );
 };
