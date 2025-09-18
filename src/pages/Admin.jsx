@@ -98,65 +98,75 @@ The Medical Imaging Research Team`,
       console.error("Error rejecting facility:", error);
     }
   };
+ const exportData = async () => {
+  try {
+    let dataToExport;
 
-  const exportData = async () => {
-    try {
-      let dataToExport;
+    if (exportFormat === "json") {
+      dataToExport = JSON.stringify(facilities, null, 2);
+      const blob = new Blob([dataToExport], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "medical_imaging_facilities.json";
+      a.click();
+    } else if (exportFormat === "csv") {
+      const headers = [
+        "Name",
+        "State",
+        "Address",
+        "Facility Type",
+        "Ownership",
+        "MRI Machines",
+        "CT Scanners",
+        "Approved",
+      ];
+      
+      const csvData = facilities.map((facility) => {
+        const mriCount =
+          facility.machines?.filter((m) => m.machine_type === "mri").length || 0;
+        const ctCount =
+          facility.machines?.filter((m) => m.machine_type === "ct").length || 0;
 
-      if (exportFormat === "json") {
-        dataToExport = JSON.stringify(facilities, null, 2);
-        const blob = new Blob([dataToExport], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "medical_imaging_facilities.json";
-        a.click();
-      } else if (exportFormat === "csv") {
-        const headers = [
-          "Name",
-          "State",
-          "Address",
-          "Facility Type",
-          "Ownership",
-          "MRI Machines",
-          "CT Scanners",
-          "Approved",
+        // Handle array values by converting them to strings
+        const facilityType = Array.isArray(facility.facility_type) 
+          ? facility.facility_type.join(", ")
+          : facility.facility_type || "";
+
+        return [
+          facility.name || "",
+          facility.state || "",
+          facility.address || "",
+          facilityType,
+          facility.ownership || "",
+          mriCount,
+          ctCount,
+          facility.approved ? "Yes" : "No",
         ];
-        const csvData = facilities.map((facility) => {
-          const mriCount =
-            facility.machines?.filter((m) => m.machine_type === "mri").length ||
-            0;
-          const ctCount =
-            facility.machines?.filter((m) => m.machine_type === "ct").length ||
-            0;
+      });
 
-          return [
-            facility.name,
-            facility.state,
-            facility.address,
-            facility.facility_type?.join(", "),
-            facility.ownership,
-            mriCount,
-            ctCount,
-            facility.approved ? "Yes" : "No",
-          ];
-        });
-
-        const csvContent = [headers, ...csvData]
-          .map((row) => row.join(","))
-          .join("\n");
-        const blob = new Blob([csvContent], { type: "text/csv" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "medical_imaging_facilities.csv";
-        a.click();
-      }
-    } catch (error) {
-      console.error("Error exporting data:", error);
+      const csvContent = [headers, ...csvData]
+        .map((row) => 
+          row.map(cell => 
+            // Escape cells that contain commas or quotes
+            typeof cell === 'string' && (cell.includes(',') || cell.includes('"')) 
+              ? `"${cell.replace(/"/g, '""')}"` 
+              : cell
+          ).join(",")
+        )
+        .join("\n");
+        
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "medical_imaging_facilities.csv";
+      a.click();
     }
-  };
-
+  } catch (error) {
+    console.error("Error exporting data:", error);
+  }
+};
   const weightedRandom = (entries) => {
     const total = entries.reduce((sum, entry) => sum + entry.points, 0);
     let r = Math.random() * total;
